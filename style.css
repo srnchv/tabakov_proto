@@ -159,6 +159,33 @@ footer{border-top:1px solid var(--line);margin-top:70px;padding:36px 0 44px;colo
 footer .cols{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:30px}
 footer a:hover{color:var(--ink)}
 .protonote{margin-top:26px;font-size:12px;color:#b5b5b5}
+.frow{border-top:1px solid var(--line);margin-top:28px;padding-top:22px}
+.flbl{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.logos{display:flex;flex-wrap:wrap;gap:10px}
+.logos span{border:1px solid var(--line);border-radius:6px;padding:8px 14px;font-size:12px;color:var(--muted);background:#fff}
+.subform{display:flex;gap:10px;max-width:430px;margin-top:6px}
+.subform input{flex:1;border:1px solid var(--line);border-radius:7px;padding:10px 14px;font:inherit;font-size:13px;outline:none}
+.social{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px}
+
+/* меню: дополнительные разделы */
+.more{position:relative}
+.more > span{cursor:pointer;color:var(--muted);font-size:14px;white-space:nowrap}
+.more > span:hover{color:var(--ink)}
+.moremenu{position:absolute;right:0;top:26px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px;min-width:230px;box-shadow:0 8px 28px rgba(0,0,0,.1);z-index:20}
+.moremenu a{display:block;padding:8px 12px;border-radius:7px;font-size:14px;color:var(--ink)}
+.moremenu a:hover{background:var(--fill)}
+
+/* главная: карточки афиши и люди театра */
+.badge{display:inline-block;font-size:11px;letter-spacing:.6px;text-transform:uppercase;background:var(--ink);color:#fff;border-radius:6px;padding:3px 8px}
+.afcard .img{aspect-ratio:3/4}
+.afcard .dt{font-weight:600;font-size:16px;margin-top:10px}
+.afcard .btnrow{margin-top:12px;display:flex;gap:8px;align-items:center}
+.pcard{text-align:left}
+.pcard .img{aspect-ratio:1;border-radius:50%;width:132px;margin:0 auto 12px;filter:grayscale(1);transition:filter .25s, background .25s;background:linear-gradient(160deg,#dcdcdc,#c4c4c4)}
+.pcard:hover .img{filter:grayscale(0);background:linear-gradient(160deg,#e8d9c8,#c9b39a)}
+.pcard .nm{font-weight:500;text-align:center}
+.pcard .rk{font-size:12px;color:var(--muted);text-align:center;margin-top:3px}
+.newscard .img{aspect-ratio:16/9;background:var(--img);border-radius:8px;margin-bottom:12px;position:relative;overflow:hidden}
 
 /* toast */
 .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 20px;border-radius:8px;font-size:14px;z-index:180;box-shadow:0 6px 22px rgba(0,0,0,.22)}

@@ -238,10 +238,23 @@ function castOn(ev) {
 
 /* ------------------------------ КАРКАС ------------------------------ */
 
+/* Главное меню — пять разделов по ТЗ (3.1) */
 const NAV = [
-  ['#/afisha', 'Афиша'], ['#/repertoire', 'Спектакли'], ['#/artists', 'Артисты'],
-  ['#/about', 'О театре'], ['#/press', 'Пресс-центр'], ['#/contacts', 'Контакты'],
+  ['#/afisha', 'Афиша'], ['#/repertoire', 'Репертуар'], ['#/about', 'О театре'],
+  ['#/artists', 'Артисты'], ['#/contacts', 'Контакты'],
 ];
+/* Дополнительные разделы — в раскрывающемся меню и подвале */
+const NAV_MORE = [
+  ['#/tickets', 'Билеты'], ['#/press', 'Пресс-центр'], ['#/search', 'Поиск по сайту'],
+  ['ext:tabakovschool', 'Театральная школа Олега Табакова'],
+  ['ext:ocenka', 'Независимая оценка качества'], ['ext:vacancy', 'Банк вакансий'],
+  ['a11y', 'Версия для слабовидящих'],
+];
+function moreHref(h) {
+  if (h === 'a11y') return `onclick="a11yOn()"`;
+  if (h.startsWith('ext:')) return `onclick="toast('Прототип: переход на внешний ресурс')"`;
+  return `href="${h}"`;
+}
 
 function header(active) {
   return `
@@ -255,7 +268,7 @@ function header(active) {
     <a href="#/" class="logo">Театр Олега Табакова<span class="sub">Московский театр · прототип сайта</span></a>
     <nav class="main">
       ${NAV.map(([h, t]) => `<a href="${h}" class="${active === h ? 'active' : ''}">${t}</a>`).join('')}
-      <a href="#/search" title="Поиск">Поиск</a>
+      <span class="more"><span onclick="toggleMore(event)">Ещё ▾</span><span id="moremenu"></span></span>
     </nav>
     <div style="display:flex;gap:10px;align-items:center">
       <span class="eye" onclick="a11yOn()" title="Версия для слабовидящих">👁 Для слабовидящих</span>
@@ -264,18 +277,57 @@ function header(active) {
   </div></header>`;
 }
 
+function toggleMore(ev) {
+  ev.stopPropagation();
+  const box = document.getElementById('moremenu');
+  if (box.innerHTML) { box.innerHTML = ''; return; }
+  box.innerHTML = `<span class="moremenu">${NAV_MORE.map(([h, t]) => `<a ${moreHref(h)}>${t}</a>`).join('')}</span>`;
+}
+
+/* Подвал по ТЗ: логотип, навигация, контакты двух сцен, билетные партнёры,
+   спонсоры, подписка, соцсети, независимая оценка, банк вакансий, версия для слабовидящих */
+const SPONSORS = [
+  ['Генеральный спонсор', 'ВТБ'], ['Генеральный информационный партнёр', 'ТАСС'],
+  ['Генеральный мультимедийный партнёр', 'Москва 24'], ['Стратегический партнёр', 'Уралхим'],
+  ['Спонсор', 'СИБУР'], ['Партнёр', 'Bosco'], ['Информационный партнёр', 'Ведомости'],
+];
+const SOCIAL = ['VK', 'Telegram', 'Дзен', 'Rutube', 'Одноклассники', 'MAX'];
+
 function footer() {
   return `<footer><div class="wrap">
     <div class="cols">
       <div>
         <div style="font-weight:600;color:var(--ink)">Театр Олега Табакова</div>
-        <div style="margin-top:8px">Касса Исторической сцены — ул. Чаплыгина, 1А, стр. 1, ежедневно 11:00–21:00, +7 (495) 499-96-44<br>
-        Касса в ГУМе — Красная площадь, 3, ежедневно 11:00–21:00, +7 (967) 089-84-71</div>
+        <div style="margin-top:8px">${SCENES.ist.n} — ${SCENES.ist.addr}, ${SCENES.ist.metro}<br>
+        ${SCENES.suh.n} — ${SCENES.suh.addr}, ${SCENES.suh.metro}</div>
+        <div style="margin-top:8px">Касса Исторической сцены — ежедневно 11:00–21:00, +7 (495) 499-96-44<br>
+        Касса в ГУМе, Красная площадь, 3 — ежедневно 11:00–21:00, +7 (967) 089-84-71</div>
+        <div class="social">${SOCIAL.map(s => `<a onclick="toast('Прототип: переход в соцсеть')">${s}</a>`).join('')}</div>
       </div>
-      <div><a href="#/afisha">Афиша</a><br><a href="#/repertoire">Спектакли</a><br><a href="#/artists">Артисты</a></div>
-      <div><a href="#/about">О театре</a><br><a href="#/about/chrono">Хронограф</a><br><a href="#/about/docs">Документы</a></div>
-      <div><a href="#/press">Пресс-центр</a><br><a href="#/contacts">Контакты</a><br><a onclick="a11yOn()">Версия для слабовидящих</a></div>
+      <div>${NAV.map(([h, t]) => `<a href="${h}">${t}</a>`).join('<br>')}</div>
+      <div>${NAV_MORE.slice(0, 4).map(([h, t]) => `<a ${moreHref(h)}>${t}</a>`).join('<br>')}</div>
+      <div>${NAV_MORE.slice(4).map(([h, t]) => `<a ${moreHref(h)}>${t}</a>`).join('<br>')}<br><a onclick="toast('Прототип: опрос для зрителей')">Опрос для зрителей</a></div>
     </div>
+
+    <div class="frow">
+      <div class="flbl">Билетные партнёры</div>
+      <div class="logos">${PARTNERS.map(p => `<span>${p.n}</span>`).join('')}</div>
+    </div>
+
+    <div class="frow">
+      <div class="flbl">Спонсоры и партнёры</div>
+      <div class="logos">${SPONSORS.map(([r, n]) => `<span>${n} · <span style="color:#b5b5b5">${r.toLowerCase()}</span></span>`).join('')}</div>
+    </div>
+
+    <div class="frow">
+      <div class="flbl">Подпишитесь на рассылку</div>
+      <div class="subform">
+        <input placeholder="Электронная почта">
+        <button class="btn dark sm" onclick="toast('Прототип: подписка оформлена')">Подписаться</button>
+      </div>
+      <div style="margin-top:8px;font-size:12px">Нажимая кнопку, вы соглашаетесь с политикой обработки персональных данных</div>
+    </div>
+
     <div class="protonote">UX-прототип сайта · Charmer · контент перенесён с tabakov.ru (сентябрь 2026), не для публичного использования · дизайн не является финальным</div>
   </div></footer>`;
 }
@@ -284,66 +336,65 @@ function page(active, inner) { return header(active) + `<div class="wrap">${inne
 
 /* ------------------------------ СТРАНИЦЫ ------------------------------ */
 
+/* Люди театра — ведущие артисты и художественный руководитель (блок 2 главной) */
+const LEADS = [
+  ['mashkov', 'художественный руководитель'], ['zudina', 'артистка труппы'],
+  ['ugrumov', 'артист труппы'], ['egorov', 'артист труппы'],
+  ['brodetskiy', 'артист труппы'], ['ilyin', 'артист труппы'],
+  ['lapteva', 'артистка труппы, режиссёр'], ['miller_e', 'артист труппы'],
+];
+
+/* Главная страница по ТЗ (3.2): заставка + блок афиши + блок людей театра + блок новостей */
 function home() {
   const today = '2026-09-16';
-  const next = SHOWS.filter(e => e.date >= today && !e.soldout).slice(0, 3);
-  const prem = byId['zv'];
+  const next = SHOWS.filter(e => e.date >= today).slice(0, 10);
   return page('#/', `
-  <section class="hero">
-    <div class="kicker">Московский театр Олега Табакова · сезон 2026/27</div>
-    <h1>Театр, который начался в подвале на Чаплыгина.</h1>
-    <p class="lead">Историческая сцена на Чистых прудах, сцена на Сухаревской, большие спектакли на сцене «Современника». Афиша, репертуар, артисты и билеты — на одном сайте.</p>
-    <div style="display:flex;gap:12px;margin-top:22px;flex-wrap:wrap">
-      <a class="btn dark" href="#/afisha">Афиша и билеты</a>
-      <a class="btn" href="#/repertoire">Спектакли</a>
-      <a class="btn" href="#/spect/${prem.id}">Премьера: «${esc(prem.t)}»</a>
+  <section class="hsec" style="border-top:none;padding-top:40px">
+    <div class="hsec-h">
+      <div class="hkick"><span class="hdot"></span>Афиша спектаклей</div>
+      <a class="muted" href="#/afisha">Вся афиша →</a>
     </div>
-  </section>
-
-  <section class="hsec">
-    <div class="hsec-h"><div class="hkick"><span class="hdot"></span>Ближайшие спектакли</div><a class="muted" href="#/afisha">Вся афиша →</a></div>
-    <div class="grid g3">${next.map(e => { const s = byId[e.spect]; return `
-      <a class="card tile" href="#/spect/${s.id}">
-        <div class="img"><span class="imgtag">афишное фото</span></div>
-        <div class="kicker">${fmtD(e.date)} · ${e.time} · ${scN(s.scene)}</div>
+    <div class="grid g4">${next.map(e => { const s = byId[e.spect]; return `
+      <a class="card tile afcard" href="#/spect/${s.id}">
+        <div class="img"><span class="imgtag">обложка спектакля</span></div>
+        ${s.premiere ? '<div style="margin-bottom:6px"><span class="badge">Премьера</span></div>' : ''}
         <div class="t">«${esc(s.t)}»</div>
-        <div class="muted" style="font-size:13px">${s.genre} · ${s.age}${s.premiere ? ' · премьера' : ''}</div>
-        <div style="margin-top:12px"><span class="btn sm" onclick="event.preventDefault();ticket('${e.id}')">Купить билет</span></div>
+        <div class="muted" style="font-size:13px">${s.genre} · ${s.age}</div>
+        <div class="dt">${fmtD(e.date)}, ${e.time}</div>
+        <div class="muted" style="font-size:13px">${scN(s.scene)}</div>
+        <div class="btnrow">${e.soldout
+          ? '<span class="soldout" style="width:100%">Все билеты проданы</span>'
+          : `<span class="btn dark sm" onclick="event.preventDefault();ticket('${e.id}')">Купить билет</span>`}</div>
       </a>`; }).join('')}
     </div>
   </section>
 
   <section class="hsec">
-    <div class="hsec-h"><div class="hkick"><span class="hdot"></span>Премьера сезона</div></div>
-    <a class="card" href="#/spect/${prem.id}" style="display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:center">
-      <div class="media wide" style="aspect-ratio:16/9"><span class="imgtag">кадр из спектакля</span></div>
-      <div>
-        <div class="kicker">Премьера · ${scN(prem.scene)}</div>
-        <h2 style="margin:.4em 0">«${esc(prem.t)}»</h2>
-        <p class="muted">${esc(prem.desc)}</p>
-        <span class="btn dark sm">О спектакле и билеты</span>
-      </div>
-    </a>
-  </section>
-
-  <section class="hsec">
-    <div class="hsec-h"><div class="hkick"><span class="hdot"></span>Новости</div><a class="muted" href="#/press">Все новости →</a></div>
-    <div class="grid g3">${NEWS.slice(0, 3).map(n => `
-      <a class="card" href="#/news/${n.id}">
-        <div class="kicker">${fmtD(n.date)}</div>
-        <div class="t" style="font-weight:500;margin-top:6px">${esc(n.t)}</div>
-        <div class="muted" style="font-size:13px;margin-top:8px">${esc(n.tx.slice(0, 90))}…</div>
-      </a>`).join('')}
+    <div class="hsec-h">
+      <div class="hkick"><span class="hdot"></span>Люди театра</div>
+      <a class="muted" href="#/artists">Все артисты →</a>
+    </div>
+    <div class="grid g4">${LEADS.map(([id, role]) => { const a = byId[id]; return `
+      <a class="card tile pcard" href="#/artist/${a.id}">
+        <div class="img"></div>
+        <div class="nm">${esc(a.n)}</div>
+        <div class="rk">${a.rank ? esc(a.rank) + '<br>' : ''}${role}</div>
+      </a>`; }).join('')}
     </div>
   </section>
 
   <section class="hsec">
-    <div class="hsec-h"><div class="hkick"><span class="hdot"></span>О театре</div><a class="muted" href="#/about">Подробнее →</a></div>
-    <div class="grid g4">
-      <a class="card" href="#/about/history"><h3 style="margin:0 0 6px">История</h3><div class="muted" style="font-size:13px">От студии 1974 года до трёх площадок</div></a>
-      <a class="card" href="#/about/chrono"><h3 style="margin:0 0 6px">Хронограф</h3><div class="muted" style="font-size:13px">Ключевые даты театра</div></a>
-      <a class="card" href="#/about/building"><h3 style="margin:0 0 6px">Здания и сцены</h3><div class="muted" style="font-size:13px">Чаплыгина и Сухаревская</div></a>
-      <a class="card" href="#/about/prize"><h3 style="margin:0 0 6px">Премия Табакова</h3><div class="muted" style="font-size:13px">Лауреаты и положение</div></a>
+    <div class="hsec-h">
+      <div class="hkick"><span class="hdot"></span>Новости</div>
+      <a class="muted" href="#/press">Все новости →</a>
+    </div>
+    <div class="grid g3">${NEWS.slice(0, 3).map(n => `
+      <a class="card newscard" href="#/news/${n.id}">
+        <div class="img"><span class="imgtag">обложка новости</span></div>
+        <div class="kicker">${fmtD(n.date)}</div>
+        <div class="t" style="font-weight:500;margin-top:6px">${esc(n.t)}</div>
+        <div class="muted" style="font-size:13px;margin-top:8px">${esc(n.tx.slice(0, 110))}…</div>
+      </a>`).join('')}
     </div>
   </section>`);
 }
@@ -426,8 +477,8 @@ function repertoire(q) {
   const link = (p) => '#/repertoire?' + new URLSearchParams(Object.assign({ arch: arch ? '1' : '', genre }, p)).toString();
   const GENRES = [...new Set(SPECTS.filter(s => s.status === 'rep').map(s => s.genre))];
   return page('#/repertoire', `
-  <div class="crumbs"><a href="#/">Главная</a> / Спектакли</div>
-  <h1>${arch ? 'Архив спектаклей' : 'Спектакли'}</h1>
+  <div class="crumbs"><a href="#/">Главная</a> / Репертуар</div>
+  <h1>${arch ? 'Архив спектаклей' : 'Репертуар'}</h1>
   <div class="toolbar">
     <div class="tools">
       <a class="fchip ${!arch ? 'on' : ''}" href="${link({ arch: '' })}">Текущий репертуар</a>
@@ -449,60 +500,49 @@ function repertoire(q) {
   </div>`}`);
 }
 
-/* -------- страница спектакля: девять блоков ТЗ -------- */
+/* -------- страница спектакля: девять блоков по разделу 4 ТЗ -------- */
 function spect(id) {
   const s = byId[id]; if (!s || !s.roles) return notFound();
   const today = '2026-09-16';
   const evsAll = showsOf(id).filter(e => e.date >= today);
   const evs = evsAll.filter(e => !e.soldout);
   const press = PRESS.filter(p => p.spect === id);
-  let bn = 0; const B = (t) => `<div class="blockh"><h2>${t}</h2><span class="n">блок ${++bn} из 9</span></div>`;
+  const B = (n, t) => `<div class="blockh"><h2>${t}</h2><span class="n">блок ${n} из 9</span></div>`;
+  const status = s.premiere ? 'Премьера' : (s.status === 'arch' ? 'Архивный' : 'В репертуаре');
   return page('#/repertoire', `
-  <div class="crumbs"><a href="#/">Главная</a> / <a href="#/repertoire">Спектакли</a> / «${esc(s.t)}»</div>
+  <div class="crumbs"><a href="#/">Главная</a> / <a href="#/repertoire">Репертуар</a> / «${esc(s.t)}»</div>
   <section class="pad">
     <div class="two">
       <div>
-        <div class="media"><span class="imgtag">афишная фотография</span></div>
-        <div class="thumbs" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px">
-          ${[0,1,2,3].map(i => `<div style="background:var(--img);border-radius:6px;aspect-ratio:3/2;cursor:zoom-in" onclick="lightbox(${i})"></div>`).join('')}
-        </div>
+        <div class="media"><span class="imgtag">блок 1 — афишная фотография</span></div>
       </div>
       <div>
-        <div class="kicker">${s.premiere ? 'Премьера' : 'В репертуаре'}${s.sold ? ' · распродано' : ''}</div>
-        <h1 style="font-size:34px">«${esc(s.t)}»</h1>
+        <div class="kicker">блок 2 — текстовый блок</div>
+        <h1 style="font-size:34px;margin-top:.1em">«${esc(s.t)}»</h1>
+        <div class="muted">${s.genre}${s.author ? ' · ' + esc(s.author) : ''}${s.dir ? ' · режиссёр ' + esc(s.dir) : ''}</div>
         <p class="lead" style="font-size:18px">${esc(s.desc)}</p>
-        <div class="metabox" style="margin-top:18px">
-          ${s.author ? `<div class="r"><span class="k">Автор</span><span class="v">${esc(s.author)}</span></div>` : ''}
-          ${s.dir ? `<div class="r"><span class="k">Режиссёр</span><span class="v">${esc(s.dir)}</span></div>` : ''}
-          <div class="r"><span class="k">Жанр</span><span class="v">${s.genre}</span></div>
-          <div class="r"><span class="k">Возраст</span><span class="v">${s.age}</span></div>
-          ${s.dur ? `<div class="r"><span class="k">Длительность</span><span class="v">${s.dur}</span></div>` : ''}
-          <div class="r"><span class="k">Место</span><span class="v">${scN(s.scene)}</span></div>
-          ${s.prem ? `<div class="r"><span class="k">Премьера</span><span class="v">${s.prem}</span></div>` : ''}
-          ${s.price ? `<div class="r"><span class="k">Стоимость билетов</span><span class="v">${s.price}</span></div>` : ''}
-          ${s.rating ? `<div class="r"><span class="k">Рейтинг Яндекс Афиши</span><span class="v">★ ${s.rating}</span></div>` : ''}
-        </div>
+        ${s.long ? `<p style="max-width:620px">${esc(s.long)}</p>` : `<p class="muted" style="max-width:620px">${MOVE_NOTE}</p>`}
         ${evs.length ? `<div style="margin-top:16px"><button class="btn dark" onclick="ticket('${evs[0].id}')">Купить билет — ${fmtD(evs[0].date)}</button></div>` : ''}
       </div>
     </div>
 
-    ${B('О спектакле')}
-    <p style="max-width:760px">${esc(s.desc)}</p>
-    ${s.long ? `<p class="muted" style="max-width:760px">${esc(s.long)}</p>` : `<p class="muted" style="max-width:760px">${MOVE_NOTE}</p>`}
+    ${B(3, 'Атрибуты спектакля')}
+    <div class="metabox" style="max-width:620px">
+      <div class="r"><span class="k">Жанр</span><span class="v">${s.genre}</span></div>
+      ${s.dir ? `<div class="r"><span class="k">Режиссёр</span><span class="v">${esc(s.dir)}</span></div>` : ''}
+      ${s.author ? `<div class="r"><span class="k">Автор пьесы</span><span class="v">${esc(s.author)}</span></div>` : ''}
+      ${s.dur ? `<div class="r"><span class="k">Продолжительность</span><span class="v">${s.dur}</span></div>` : ''}
+      <div class="r"><span class="k">Возрастной ценз</span><span class="v">${s.age}</span></div>
+      <div class="r"><span class="k">Сцена</span><span class="v">${scN(s.scene)}</span></div>
+      ${s.prem ? `<div class="r"><span class="k">Премьера</span><span class="v">${s.prem}</span></div>` : ''}
+      <div class="r"><span class="k">Статус</span><span class="v">${status}</span></div>
+      ${s.price ? `<div class="r"><span class="k">Стоимость билетов</span><span class="v">${s.price}</span></div>` : ''}
+      ${s.rating ? `<div class="r"><span class="k">Рейтинг Яндекс Афиши</span><span class="v">★ ${s.rating}</span></div>` : ''}
+    </div>
 
-    ${B('Даты и билеты')}
-    ${evsAll.length ? evsAll.map(e => `
-      <div class="afrow">
-        <div class="tm">${e.time}</div>
-        <div class="sp"><span class="t">${fmtD(e.date, true)}</span>
-          <div class="m">${scN(s.scene)}</div></div>
-        <div class="cast" style="grid-column:span 2">${s.roles.length ? castOn(e).slice(0, 3).map(c => `<a href="#/artist/${c.artist.id}" style="text-decoration:underline">${esc(c.artist.n)}</a> — ${esc(c.role)}`).join(', ') : ''}</div>
-        <div>${e.soldout ? '<div class="soldout">Продано</div>' : `<button class="btn dark sm" style="width:100%" onclick="ticket('${e.id}')">Билеты</button>`}</div>
-      </div>`).join('') : '<p class="muted">Ближайших показов в афише сентября–октября нет.</p>'}
-
-    ${B('Артисты и роли')}
+    ${B(4, 'Артисты')}
     ${s.roles.length ? `
-    <div class="muted" style="font-size:13px;margin-bottom:6px">У ролей с двумя исполнителями состав объявляется на дату.</div>
+    <div class="muted" style="font-size:13px;margin-bottom:6px">У ролей с двумя исполнителями состав объявляется на дату показа.</div>
     ${s.roles.map(role => `
       <div class="castgrp"><div class="lbl">${esc(role.r)}${role.a.length > 1 ? ' · два состава' : ''}</div>
       <div class="grid g3">${role.a.map(aid => { const a = byId[aid]; return `
@@ -510,39 +550,46 @@ function spect(id) {
           <span><span class="nm">${esc(a.n)}</span><br><span class="rl">${a.rank || a.grp}</span></span></a>`; }).join('')}
       </div></div>`).join('')}` : `<p class="muted">${MOVE_NOTE}</p>`}
 
-    ${B('Создатели спектакля')}
-    ${s.team.length ? `<div class="metabox" style="max-width:560px">
+    ${B(5, 'Постановочная группа')}
+    ${s.team.length ? `<div class="metabox" style="max-width:620px">
       ${s.team.map(([k, v]) => `<div class="r"><span class="k">${k}</span><span class="v">${esc(v)}</span></div>`).join('')}
     </div>` : `<p class="muted">${MOVE_NOTE}</p>`}
 
-    ${B('Фотогалерея')}
+    ${B(6, 'Фотогалерея и видео')}
+    <div class="muted" style="font-size:13px;margin-bottom:10px">Фотографии открываются в лайтбоксе; трейлер воспроизводится в собственном плеере театра, без внешних видеосервисов.</div>
     <div class="gal">${[0,1,2,3,4,5,6,7].map(i => `<div onclick="lightbox(${i})"><span class="imgtag">фото ${i + 1}</span></div>`).join('')}</div>
-
-    ${B('Видео')}
-    <div class="muted" style="font-size:13px;margin-bottom:10px">Собственный видеоплеер театра — трейлеры и видеоотзывы размещаются на инфраструктуре театра, без внешних видеосервисов.</div>
-    <div class="player" style="max-width:760px">
+    <div class="player" style="max-width:760px;margin-top:18px">
       <div class="scene">трейлер спектакля · MP4 / WebM · 1080p</div>
       <div class="bar"><span class="pp" onclick="toast('Прототип: воспроизведение в собственном плеере')">▶</span>
         <span>01:12</span><span class="tl"><span class="pr"></span></span><span>03:40</span>
         <span class="meta">HD · субтитры · ⛶</span></div>
     </div>
 
-    ${B('Отзывы зрителей')}
-    <div class="muted" style="font-size:13px;margin-bottom:10px">Текстовые и видеоотзывы публикуются после модерации.</div>
-    <p class="muted">Отзывов пока нет — оставьте первый.</p>
-    <div style="margin-top:14px"><button class="btn" onclick="toast('Прототип: форма отзыва отправлена на модерацию')">Оставить отзыв</button>
-    <button class="btn" onclick="toast('Прототип: загрузка видеоотзыва → модерация')">Записать видеоотзыв</button></div>
+    ${B(7, 'Отзывы зрителей')}
+    <div class="muted" style="font-size:13px;margin-bottom:10px">Текстовые и видеоотзывы публикуются после модерации. Видеоотзывы воспроизводятся в том же плеере.</div>
+    <div class="grid g2" style="max-width:900px">
+      <div class="review"><div class="player" style="margin-bottom:12px"><div class="scene">видеоотзыв зрителя</div>
+        <div class="bar"><span class="pp" onclick="toast('Прототип: воспроизведение видеоотзыва')">▶</span><span class="tl"><span class="pr" style="width:12%"></span></span><span class="meta">00:42</span></div></div>
+        <div class="muted">Пример карточки видеоотзыва: превью, плеер, имя автора и дата.</div></div>
+      <div class="review"><div class="muted">Текстовые отзывы появятся после публикации первых модерированных откликов: имя автора, дата, при необходимости — оценка.</div></div>
+    </div>
+    <div style="margin-top:14px"><button class="btn" onclick="toast('Прототип: форма отзыва отправлена на премодерацию')">Оставить отзыв</button>
+    <button class="btn" onclick="toast('Прототип: загрузка видеоотзыва → премодерация')">Загрузить видеоотзыв</button></div>
 
-    ${B('СМИ о спектакле')}
+    ${B(8, 'СМИ о спектакле')}
     ${press.length ? press.map(p => `
       <div class="pressrow"><a class="lnk" onclick="toast('Прототип: переход на сайт издания')" style="text-decoration:underline">${esc(p.t)}</a>
       <span class="src">${p.src}${p.date ? ' · ' + fmtD(p.date) : ''}</span></div>`).join('') : `<p class="muted">${MOVE_NOTE}</p>`}
 
-    ${B('Смотрите также')}
-    <div class="grid g4">${SPECTS.filter(x => x.id !== id && x.status === 'rep' && (x.genre === s.genre || x.premiere === s.premiere)).slice(0, 4).map(x => `
-      <a class="card tile" href="#/spect/${x.id}"><div class="img p23"><span class="imgtag">афиша</span></div>
-      <div class="t">«${esc(x.t)}»</div><div class="muted" style="font-size:13px">${x.genre} · ${x.age}</div></a>`).join('')}
-    </div>
+    ${B(9, 'Покупка билетов')}
+    ${evsAll.length ? evsAll.map(e => `
+      <div class="afrow">
+        <div class="tm">${e.time}</div>
+        <div class="sp"><span class="t">${fmtD(e.date, true)}</span>
+          <div class="m">${scN(s.scene)}${scA(s.scene) ? ' · ' + scA(s.scene) : ''}</div></div>
+        <div class="cast" style="grid-column:span 2">${s.roles.length ? castOn(e).slice(0, 3).map(c => `<a href="#/artist/${c.artist.id}" style="text-decoration:underline">${esc(c.artist.n)}</a> — ${esc(c.role)}`).join(', ') : ''}</div>
+        <div>${e.soldout ? '<div class="soldout">Продано</div>' : `<button class="btn dark sm" style="width:100%" onclick="ticket('${e.id}')">Купить билет</button>`}</div>
+      </div>`).join('') : '<p class="muted">Ближайших показов в афише сентября–октября нет.</p>'}
   </section>`);
 }
 
@@ -754,6 +801,29 @@ function contacts() {
   <p class="muted" style="max-width:680px">Правила и форма возврата билетов — отдельная страница; в прототипе раздел показан в структуре меню «Билеты».</p>`);
 }
 
+/* -------- билеты (доп. раздел по ТЗ 3.1) -------- */
+function tickets() {
+  return page('', `
+  <div class="crumbs"><a href="#/">Главная</a> / Билеты</div>
+  <h1>Билеты</h1>
+  <p class="lead" style="font-size:17px">Билеты продаются через официальных билетных партнёров театра и в кассах. Кнопка «Купить билет» в афише ведёт сразу на страницу выбранного показа у партнёра.</p>
+  <h2>Билетные партнёры</h2>
+  <div class="grid g3">${PARTNERS.map(p => `
+    <div class="card"><div class="t" style="font-weight:500">${p.n}</div>
+    <div class="muted" style="font-size:13px">${p.m}</div>
+    <div style="margin-top:12px"><button class="btn sm" onclick="toast('Прототип: переход к партнёру ${p.n}')">Перейти →</button></div></div>`).join('')}
+  </div>
+  <h2>Кассы театра</h2>
+  <div class="metabox" style="max-width:680px">
+    <div class="r"><span class="k">Касса Исторической сцены</span><span class="v">ул. Чаплыгина, 1А, стр. 1 · 11:00–21:00 · +7 (495) 499-96-44</span></div>
+    <div class="r"><span class="k">Касса в ГУМе</span><span class="v">Красная площадь, 3 · 11:00–21:00 · +7 (967) 089-84-71</span></div>
+  </div>
+  <h2>Возврат билетов</h2>
+  <p class="muted" style="max-width:680px">Правила и форма возврата билетов, купленных в кассах и у партнёров. Раздел переносится с текущего сайта.</p>
+  <h2>Подарочный сертификат</h2>
+  <p class="muted" style="max-width:680px">Сертификат на посещение спектакля — условия и оформление.</p>`);
+}
+
 /* -------- поиск -------- */
 function search(q) {
   const query = (q.q || '').trim().toLowerCase();
@@ -809,6 +879,7 @@ function render(h) {
   else if (seg[0] === 'press') html = press(q);
   else if (seg[0] === 'news') html = newsPage(seg[1]);
   else if (seg[0] === 'contacts') html = contacts();
+  else if (seg[0] === 'tickets') html = tickets();
   else if (seg[0] === 'search') html = search(q);
   else html = notFound();
   app.innerHTML = html;
@@ -842,6 +913,9 @@ function splash() {
 /* ------------------------------ INIT ------------------------------ */
 
 window.addEventListener('hashchange', () => render(location.hash));
+if (document.addEventListener) document.addEventListener('click', () => {
+  const box = document.getElementById('moremenu'); if (box && box.innerHTML) box.innerHTML = '';
+});
 try {
   if (localStorage.getItem('tot_a11y')) document.body.classList.add('a11y');
   if (localStorage.getItem('tot_a11y_f')) document.body.classList.add('fsz2');
