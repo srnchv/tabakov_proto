@@ -219,7 +219,7 @@ function fmtD(iso, wd) {
   const d = new Date(iso + 'T12:00:00');
   return d.getDate() + ' ' + MONTHS[d.getMonth()] + (wd ? ', ' + WDAYS[d.getDay()] : '');
 }
-function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
 function showsOf(spectId) { return SHOWS.filter(e => e.spect === spectId); }
 function showsWith(artistId) {
@@ -920,5 +920,4 @@ try {
   if (localStorage.getItem('tot_a11y')) document.body.classList.add('a11y');
   if (localStorage.getItem('tot_a11y_f')) document.body.classList.add('fsz2');
 } catch (e) {}
-render(location.hash);
-splash();
+
